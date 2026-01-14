@@ -1,0 +1,272 @@
+{% extends 'base.html' %}
+
+{% block title %}Medusa Marketplace - Conectando empreendedores e clientes{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6">
+                <h1 class="display-4 fw-bold mb-4">
+                    O marketplace que <span class="text-warning">vende por você</span>
+                </h1>
+                <p class="lead mb-4">
+                    Conectamos pequenos empreendedores a clientes que precisam de soluções. 
+                    Você não precisa saber vender, a plataforma faz isso por você.
+                </p>
+                <div class="d-flex flex-wrap gap-3">
+                    {% if not user.is_authenticated %}
+                        <a href="{% url 'marketplace:register' %}" class="btn btn-warning btn-lg px-4">
+                            <i class="bi bi-rocket-takeoff"></i> Começar Agora
+                        </a>
+                    {% endif %}
+                    <a href="{% url 'marketplace:como-funciona' %}" class="btn btn-outline-light btn-lg px-4">
+                        <i class="bi bi-play-circle"></i> Como Funciona
+                    </a>
+                </div>
+            </div>
+            <div class="col-lg-6 text-center">
+                <i class="bi bi-shop" style="font-size: 15rem; opacity: 0.1;"></i>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Stats Section -->
+<section class="py-4 bg-light">
+    <div class="container">
+        <div class="row text-center">
+            <div class="col-md-3">
+                <div class="p-3">
+                    <h3 class="text-primary fw-bold">{{ empreendedores_count }}</h3>
+                    <p class="text-muted mb-0">Empreendedores</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="p-3">
+                    <h3 class="text-primary fw-bold">{{ necessidades_count }}</h3>
+                    <p class="text-muted mb-0">Necessidades Ativas</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="p-3">
+                    <h3 class="text-primary fw-bold">{{ matches_count }}</h3>
+                    <p class="text-muted mb-0">Conexões Feitas</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="p-3">
+                    <h3 class="text-primary fw-bold">100%</h3>
+                    <p class="text-muted mb-0">Moçambique</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Categories Section -->
+<section class="section">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="section-title">Categorias de Serviços</h2>
+            <p class="section-subtitle">Encontre o profissional certo para o que você precisa</p>
+        </div>
+        
+        <div class="row">
+            {% for category in categories %}
+                <div class="col-md-3 col-sm-6 mb-4">
+                    <a href="{% url 'marketplace:empreendedor-list' %}?category={{ category.id }}" class="category-card">
+                        <i class="bi {% if category.icon %}{{ category.icon }}{% else %}bi-gear{% endif %}"></i>
+                        <h5>{{ category.name }}</h5>
+                        <p class="text-muted small">{{ category.description|truncatewords:10 }}</p>
+                    </a>
+                </div>
+            {% empty %}
+                <div class="col-12 text-center">
+                    <p class="text-muted">Nenhuma categoria cadastrada ainda.</p>
+                </div>
+            {% endfor %}
+        </div>
+        
+        <div class="text-center mt-4">
+            <a href="{% url 'marketplace:empreendedor-list' %}" class="btn btn-outline-primary">
+                <i class="bi bi-list"></i> Ver Todas as Categorias
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- How It Works Section -->
+<section class="section bg-light">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="section-title">Como Funciona</h2>
+            <p class="section-subtitle">Simples, rápido e eficiente</p>
+        </div>
+        
+        <div class="row">
+            <div class="col-md-4 text-center mb-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body p-4">
+                        <div class="mb-3">
+                            <i class="bi bi-person-plus-fill text-primary" style="font-size: 4rem;"></i>
+                        </div>
+                        <h4 class="card-title">1. Cadastre-se</h4>
+                        <p class="card-text text-muted">
+                            Crie seu perfil como empreendedor ou cliente em poucos minutos.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4 text-center mb-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body p-4">
+                        <div class="mb-3">
+                            <i class="bi bi-bullseye text-primary" style="font-size: 4rem;"></i>
+                        </div>
+                        <h4 class="card-title">2. Publique ou Procure</h4>
+                        <p class="card-text text-muted">
+                            Clientes publicam necessidades. Empreendedores encontram oportunidades.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4 text-center mb-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body p-4">
+                        <div class="mb-3">
+                            <i class="bi bi-link-45deg text-primary" style="font-size: 4rem;"></i>
+                        </div>
+                        <h4 class="card-title">3. Conecte-se</h4>
+                        <p class="card-text text-muted">
+                            O sistema conecta você às melhores oportunidades automaticamente.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- For Entrepreneurs Section -->
+<section class="section">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6">
+                <h2 class="section-title">Para Empreendedores</h2>
+                <p class="lead text-muted mb-4">
+                    Você não precisa ser expert em marketing. Nossa plataforma conecta você 
+                    diretamente com clientes que precisam dos seus serviços.
+                </p>
+                <ul class="list-unstyled mb-4">
+                    <li class="mb-2">
+                        <i class="bi bi-check-circle-fill text-success me-2"></i>
+                        Cadastro simples e guiado
+                    </li>
+                    <li class="mb-2">
+                        <i class="bi bi-check-circle-fill text-success me-2"></i>
+                        Clientes encontram você automaticamente
+                    </li>
+                    <li class="mb-2">
+                        <i class="bi bi-check-circle-fill text-success me-2"></i>
+                        Sistema de match inteligente
+                    </li>
+                    <li class="mb-2">
+                        <i class="bi bi-check-circle-fill text-success me-2"></i>
+                        Comunicação direta via WhatsApp
+                    </li>
+                </ul>
+                {% if not user.is_authenticated %}
+                    <a href="{% url 'marketplace:register' %}" class="btn btn-primary btn-lg">
+                        <i class="bi bi-rocket"></i> Criar Meu Perfil
+                    </a>
+                {% elif user.is_cliente %}
+                    <a href="{% url 'marketplace:profile-update' %}" class="btn btn-primary btn-lg">
+                        <i class="bi bi-person-badge"></i> Completar Perfil
+                    </a>
+                {% endif %}
+            </div>
+            <div class="col-lg-6 text-center">
+                <i class="bi bi-person-workspace" style="font-size: 12rem; color: var(--primary-color); opacity: 0.8;"></i>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- For Clients Section -->
+<section class="section bg-light">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6 order-lg-2">
+                <h2 class="section-title">Para Clientes</h2>
+                <p class="lead text-muted mb-4">
+                    Descreva o que você precisa e receba propostas de empreendedores qualificados 
+                    da sua região. Sem complicação, sem intermediários.
+                </p>
+                <ul class="list-unstyled mb-4">
+                    <li class="mb-2">
+                        <i class="bi bi-check-circle-fill text-success me-2"></i>
+                        Publique sua necessidade em minutos
+                    </li>
+                    <li class="mb-2">
+                        <i class="bi bi-check-circle-fill text-success me-2"></i>
+                        Receba propostas de empreendedores verificados
+                    </li>
+                    <li class="mb-2">
+                        <i class="bi bi-check-circle-fill text-success me-2"></i>
+                        Compare preços e escolha o melhor
+                    </li>
+                    <li class="mb-2">
+                        <i class="bi bi-check-circle-fill text-success me-2"></i>
+                        Comunicação direta e transparente
+                    </li>
+                </ul>
+                {% if not user.is_authenticated %}
+                    <a href="{% url 'marketplace:register' %}" class="btn btn-primary btn-lg">
+                        <i class="bi bi-plus-circle"></i> Publicar Necessidade
+                    </a>
+                {% elif user.is_empreendedor %}
+                    <a href="{% url 'marketplace:necessidade-create' %}" class="btn btn-primary btn-lg">
+                        <i class="bi bi-plus-circle"></i> Criar Necessidade
+                    </a>
+                {% endif %}
+            </div>
+            <div class="col-lg-6 order-lg-1 text-center">
+                <i class="bi bi-people-fill" style="font-size: 12rem; color: var(--primary-color); opacity: 0.8;"></i>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="section text-center" style="background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 mx-auto">
+                <h2 class="text-white mb-4">Pronto para começar?</h2>
+                <p class="text-white lead mb-4">
+                    Junte-se a centenas de empreendedores e clientes que já estão 
+                    transformando seus negócios com a Medusa.
+                </p>
+                {% if not user.is_authenticated %}
+                    <div class="d-flex justify-content-center gap-3">
+                        <a href="{% url 'marketplace:register' %}" class="btn btn-warning btn-lg">
+                            <i class="bi bi-person-plus"></i> Criar Conta Grátis
+                        </a>
+                        <a href="{% url 'marketplace:login' %}" class="btn btn-outline-light btn-lg">
+                            <i class="bi bi-box-arrow-in-right"></i> Entrar
+                        </a>
+                    </div>
+                {% else %}
+                    <a href="{% url 'marketplace:dashboard' %}" class="btn btn-warning btn-lg">
+                        <i class="bi bi-speedometer2"></i> Acessar Dashboard
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

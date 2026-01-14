@@ -1,0 +1,246 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard - Medusa Marketplace{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Bem-vindo -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-4">
+                    <div class="row align-items-center">
+                        <div class="col-md-8">
+                            <h2 class="mb-1">
+                                <i class="bi bi-speedometer2 text-primary"></i>
+                                Olá, {{ user.get_full_name|default:user.username }}!
+                            </h2>
+                            <p class="text-muted mb-0">
+                                {% if user.is_empreendedor %}
+                                    Gerencie seus matches e atenda clientes
+                                {% else %}
+                                    Encontre empreendedores para suas necessidades
+                                {% endif %}
+                            </p>
+                        </div>
+                        <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                            {% if user.is_empreendedor %}
+                                <a href="{% url 'marketplace:necessidade-list' %}" class="btn btn-primary">
+                                    <i class="bi bi-search"></i> Ver Necessidades
+                                </a>
+                            {% else %}
+                                <a href="{% url 'marketplace:necessidade-create' %}" class="btn btn-primary">
+                                    <i class="bi bi-plus-circle"></i> Nova Necessidade
+                                </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    {% if user.is_empreendedor %}
+        <!-- Dashboard do Empreendedor -->
+        <div class="row mb-4">
+            <div class="col-md-3 mb-3">
+                <div class="dashboard-card bg-primary">
+                    <div class="number">{{ novos_matches }}</div>
+                    <div class="label">Novos Matches</div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="dashboard-card" style="background-color: #ffc107; color: #212529;">
+                    <div class="number">{{ matches_em_conversa }}</div>
+                    <div class="label">Em Conversa</div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="dashboard-card bg-success">
+                    <div class="number">{{ matches_fechados }}</div>
+                    <div class="label">Fechados</div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="dashboard-card bg-info">
+                    <div class="number">{{ matches|length }}</div>
+                    <div class="label">Total Matches</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Matches Recentes -->
+        <div class="row">
+            <div class="col-12">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">
+                            <i class="bi bi-link-45deg"></i> Seus Matches Recentes
+                        </h5>
+                        <a href="{% url 'marketplace:match-list' %}" class="btn btn-sm btn-outline-light">
+                            <i class="bi bi-list"></i> Ver Todos
+                        </a>
+                    </div>
+                    <div class="card-body">
+                        {% if matches %}
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Necessidade</th>
+                                            <th>Cliente</th>
+                                            <th>Status</th>
+                                            <th>Data</th>
+                                            <th>Ações</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for match in matches %}
+                                            <tr>
+                                                <td>
+                                                    <a href="{% url 'marketplace:match-detail' match.pk %}" class="text-decoration-none">
+                                                        {{ match.necessidade.title|truncatewords:5 }}
+                                                    </a>
+                                                </td>
+                                                <td>{{ match.necessidade.cliente.user.get_full_name|default:match.necessidade.cliente.user.username }}</td>
+                                                <td>
+                                                    <span class="badge badge-{{ match.status }}">
+                                                        {{ match.get_status_display }}
+                                                    </span>
+                                                </td>
+                                                <td>{{ match.date_created|date:"d/m/Y H:i" }}</td>
+                                                <td>
+                                                    <a href="{% url 'marketplace:match-detail' match.pk %}" class="btn btn-sm btn-primary">
+                                                        <i class="bi bi-eye"></i> Ver
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        {% else %}
+                            <div class="empty-state">
+                                <i class="bi bi-inbox"></i>
+                                <h5>Nenhum match ainda</h5>
+                                <p class="mb-3">Comece verificando as necessidades dos clientes</p>
+                                <a href="{% url 'marketplace:necessidade-list' %}" class="btn btn-primary">
+                                    <i class="bi bi-search"></i> Ver Necessidades
+                                </a>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+    {% else %}
+        <!-- Dashboard do Cliente -->
+        <div class="row mb-4">
+            <div class="col-md-3 mb-3">
+                <div class="dashboard-card bg-primary">
+                    <div class="number">{{ necessidades_abertas }}</div>
+                    <div class="label">Necessidades Abertas</div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="dashboard-card" style="background-color: #ffc107; color: #212529;">
+                    <div class="number">{{ respostas_recebidas }}</div>
+                    <div class="label">Respostas</div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="dashboard-card bg-success">
+                    <div class="number">{{ servicos_contratados }}</div>
+                    <div class="label">Serviços Fechados</div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="dashboard-card bg-info">
+                    <div class="number">{{ minhas_necessidades|length }}</div>
+                    <div class="label">Total Necessidades</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Minhas Necessidades -->
+        <div class="row">
+            <div class="col-12">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">
+                            <i class="bi bi-list-check"></i> Suas Necessidades
+                        </h5>
+                        <a href="{% url 'marketplace:necessidade-create' %}" class="btn btn-sm btn-outline-light">
+                            <i class="bi bi-plus-circle"></i> Nova
+                        </a>
+                    </div>
+                    <div class="card-body">
+                        {% if minhas_necessidades %}
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Título</th>
+                                            <th>Categoria</th>
+                                            <th>Status</th>
+                                            <th>Urgência</th>
+                                            <th>Data</th>
+                                            <th>Ações</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for necessidade in minhas_necessidades %}
+                                            <tr>
+                                                <td>
+                                                    <a href="{% url 'marketplace:necessidade-detail' necessidade.pk %}" class="text-decoration-none">
+                                                        {{ necessidade.title|truncatewords:5 }}
+                                                    </a>
+                                                </td>
+                                                <td>{{ necessidade.category.name|default:"-" }}</td>
+                                                <td>
+                                                    <span class="badge badge-{{ necessidade.status }}">
+                                                        {{ necessidade.get_status_display }}
+                                                    </span>
+                                                </td>
+                                                <td>
+                                                    <span class="urgency-{{ necessidade.urgency }}">
+                                                        {{ necessidade.get_urgency_display }}
+                                                    </span>
+                                                </td>
+                                                <td>{{ necessidade.date_created|date:"d/m/Y" }}</td>
+                                                <td>
+                                                    <div class="btn-group" role="group">
+                                                        <a href="{% url 'marketplace:necessidade-detail' necessidade.pk %}" class="btn btn-sm btn-primary">
+                                                            <i class="bi bi-eye"></i>
+                                                        </a>
+                                                        {% if necessidade.status == 'aberto' %}
+                                                            <a href="{% url 'marketplace:necessidade-update' necessidade.pk %}" class="btn btn-sm btn-outline-secondary">
+                                                                <i class="bi bi-pencil"></i>
+                                                            </a>
+                                                        {% endif %}
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        {% else %}
+                            <div class="empty-state">
+                                <i class="bi bi-clipboard-plus"></i>
+                                <h5>Nenhuma necessidade publicada</h5>
+                                <p class="mb-3">Publique sua primeira necessidade e encontre empreendedores</p>
+                                <a href="{% url 'marketplace:necessidade-create' %}" class="btn btn-primary">
+                                    <i class="bi bi-plus-circle"></i> Publicar Necessidade
+                                </a>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+    {% endif %}
+</div>
+{% endblock %}

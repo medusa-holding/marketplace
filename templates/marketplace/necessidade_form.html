@@ -1,0 +1,128 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}{% if form.instance.pk %}Editar{% else %}Criar{% endif %} Necessidade - Medusa Marketplace{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">
+                        <i class="bi bi-clipboard-plus"></i>
+                        {% if form.instance.pk %}Editar{% else %}Criar{% endif %} Necessidade
+                    </h4>
+                </div>
+                <div class="card-body p-4">
+                    <form method="post" novalidate>
+                        {% csrf_token %}
+                        
+                        <!-- Título -->
+                        <div class="mb-4">
+                            {{ form.title|as_crispy_field }}
+                            <small class="form-text text-muted">
+                                <i class="bi bi-lightbulb"></i> Dica: Seja específico! Ex: "Preciso de um eletricista para instalar tomadas"
+                            </small>
+                        </div>
+                        
+                        <!-- Descrição -->
+                        <div class="mb-4">
+                            {{ form.description|as_crispy_field }}
+                            <small class="form-text text-muted">
+                                <i class="bi bi-info-circle"></i> Descreva detalhadamente o que você precisa, incluindo tamanho, quantidade, preferências...
+                            </small>
+                        </div>
+                        
+                        <div class="row">
+                            <!-- Categoria -->
+                            <div class="col-md-6 mb-4">
+                                {{ form.category|as_crispy_field }}
+                            </div>
+                            
+                            <!-- Urgência -->
+                            <div class="col-md-6 mb-4">
+                                {{ form.urgency|as_crispy_field }}
+                            </div>
+                        </div>
+                        
+                        <!-- Localização -->
+                        <div class="mb-4">
+                            {{ form.location|as_crispy_field }}
+                            <small class="form-text text-muted">
+                                <i class="bi bi-geo-alt"></i> Ex: Bairro Central, Maputo
+                            </small>
+                        </div>
+                        
+                        <div class="row">
+                            <!-- Orçamento -->
+                            <div class="col-md-6 mb-4">
+                                {{ form.budget|as_crispy_field }}
+                                <small class="form-text text-muted">
+                                    <i class="bi bi-coin"></i> Opcional. Ajuda os empreendedores a fazerem propostas adequadas.
+                                </small>
+                            </div>
+                        </div>
+                        
+                        <!-- Preview -->
+                        <div class="alert alert-info">
+                            <h6><i class="bi bi-eye"></i> O que os empreendedores verão:</h6>
+                            <hr>
+                            <h5 class="text-primary mb-2" id="preview-title">Título da sua necessidade</h5>
+                            <p class="mb-2" id="preview-description">Descrição detalhada do que você precisa...</p>
+                            <small class="text-muted">
+                                <i class="bi bi-geo-alt"></i> <span id="preview-location">Sua localização</span> | 
+                                <i class="bi bi-clock"></i> <span id="preview-urgency">Urgência</span>
+                            </small>
+                        </div>
+                        
+                        <div class="d-flex gap-3">
+                            <button type="submit" class="btn btn-primary btn-lg flex-grow-1">
+                                <i class="bi bi-check-circle"></i> 
+                                {% if form.instance.pk %}Atualizar{% else %}Publicar{% endif %} Necessidade
+                            </button>
+                            <a href="{% url 'marketplace:dashboard' %}" class="btn btn-outline-secondary btn-lg">
+                                <i class="bi bi-x-circle"></i> Cancelar
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Preview em tempo real
+    var titleInput = document.getElementById('{{ form.title.id_for_label }}');
+    var descriptionInput = document.getElementById('{{ form.description.id_for_label }}');
+    var locationInput = document.getElementById('{{ form.location.id_for_label }}');
+    var urgencySelect = document.getElementById('{{ form.urgency.id_for_label }}');
+    
+    var previewTitle = document.getElementById('preview-title');
+    var previewDescription = document.getElementById('preview-description');
+    var previewLocation = document.getElementById('preview-location');
+    var previewUrgency = document.getElementById('preview-urgency');
+    
+    function updatePreview() {
+        previewTitle.textContent = titleInput.value || 'Título da sua necessidade';
+        previewDescription.textContent = descriptionInput.value || 'Descrição detalhada do que você precisa...';
+        previewLocation.textContent = locationInput.value || 'Sua localização';
+        
+        var urgencyText = urgencySelect.options[urgencySelect.selectedIndex]?.text || 'Urgência';
+        previewUrgency.textContent = urgencyText;
+    }
+    
+    [titleInput, descriptionInput, locationInput, urgencySelect].forEach(function(element) {
+        if (element) {
+            element.addEventListener('input', updatePreview);
+            element.addEventListener('change', updatePreview);
+        }
+    });
+    
+    // Inicializa o preview
+    updatePreview();
+});
+</script>
+{% endblock %}

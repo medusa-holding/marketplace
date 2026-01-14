@@ -1,0 +1,68 @@
+{% load marketplace_filters %}
+
+<div class="necessidade-item">
+    <div class="d-flex justify-content-between align-items-start mb-2">
+        <h5 class="title mb-1">
+            <a href="{% url 'marketplace:necessidade-detail' necessidade.pk %}" class="text-decoration-none">
+                {{ necessidade.title }}
+            </a>
+        </h5>
+        <div class="d-flex gap-2 align-items-center">
+            <span class="badge badge-{{ necessidade.status }}">
+                {{ necessidade.get_status_display }}
+            </span>
+            <span class="urgency-{{ necessidade.urgency }}">
+                <i class="bi bi-exclamation-triangle-fill"></i> {{ necessidade.get_urgency_display }}
+            </span>
+        </div>
+    </div>
+    
+    <p class="description mb-2">{{ necessidade.description|truncatewords:20 }}</p>
+    
+    <div class="meta d-flex flex-wrap gap-3">
+        <span>
+            <i class="bi bi-person"></i> {{ necessidade.cliente.user.get_full_name|default:necessidade.cliente.user.username }}
+        </span>
+        {% if necessidade.category %}
+            <span>
+                <i class="bi bi-tag"></i> {{ necessidade.category.name }}
+            </span>
+        {% endif %}
+        <span>
+            <i class="bi bi-geo-alt"></i> {{ necessidade.location|truncatewords:3 }}
+        </span>
+        {% if necessidade.budget %}
+            <span>
+                <i class="bi bi-coin"></i> {{ necessidade.budget }} MT
+            </span>
+        {% endif %}
+        <span>
+            <i class="bi bi-clock"></i> {{ necessidade.date_created|timesince }} atrás
+        </span>
+    </div>
+    
+    {% if user.is_authenticated and user.is_empreendedor %}
+        <div class="mt-3 d-flex gap-2">
+            <a href="{% url 'marketplace:necessidade-detail' necessidade.pk %}" class="btn btn-primary btn-sm">
+                <i class="bi bi-eye"></i> Ver Detalhes
+            </a>
+            
+            {% if not user.empreendedor_profile|has_match:necessidade %}
+                <form method="post" action="{% url 'marketplace:create-match' necessidade.pk %}" class="d-inline">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-outline-success btn-sm">
+                        <i class="bi bi-hand-thumbs-up"></i> Me Candidatar
+                    </button>
+                </form>
+            {% else %}
+                <span class="badge bg-secondary">
+                    <i class="bi bi-check"></i> Já se candidatou
+                </span>
+            {% endif %}
+            
+            <span class="badge bg-light text-dark">
+                <i class="bi bi-person-check"></i> {{ necessidade.matches.count }} interessados
+            </span>
+        </div>
+    {% endif %}
+</div>

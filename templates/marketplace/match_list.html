@@ -1,0 +1,140 @@
+{% extends 'base.html' %}
+{% load marketplace_filters %}
+
+{% block title %}Meus Matches - Medusa Marketplace{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>
+            <i class="bi bi-link-45deg"></i>
+            Meus Matches
+        </h2>
+        
+        <a href="{% url 'marketplace:dashboard' %}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i> Voltar
+        </a>
+    </div>
+    
+    {% if matches %}
+        <div class="row mb-4">
+            <div class="col-md-3 mb-3">
+                <div class="card bg-light border-0">
+                    <div class="card-body text-center">
+                        <h4 class="text-primary">{{ matches|length }}</h4>
+                        <p class="mb-0 text-muted">Total</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="card bg-light border-0">
+                    <div class="card-body text-center">
+                        <h4 class="text-warning">{{ matches|filter_status:'em_conversa'|length }}</h4>
+                        <p class="mb-0 text-muted">Em Conversa</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="card bg-light border-0">
+                    <div class="card-body text-center">
+                        <h4 class="text-success">{{ matches|filter_status:'fechado'|length }}</h4>
+                        <p class="mb-0 text-muted">Fechados</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="card bg-light border-0">
+                    <div class="card-body text-center">
+                        <h4 class="text-primary">{{ matches|filter_status:'novo'|length }}</h4>
+                        <p class="mb-0 text-muted">Novos</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead class="table-primary">
+                    <tr>
+                        {% if user.is_empreendedor %}
+                            <th>Cliente/Necessidade</th>
+                        {% else %}
+                            <th>Empreendedor</th>
+                        {% endif %}
+                        <th>Status</th>
+                        <th>Orçamento</th>
+                        <th>Data</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for match in matches %}
+                        <tr>
+                            <td>
+                                {% if user.is_empreendedor %}
+                                    <div>
+                                        <strong>{{ match.necessidade.cliente.user.get_full_name|default:match.necessidade.cliente.user.username }}</strong>
+                                        <br>
+                                        <small class="text-muted">
+                                            <i class="bi bi-file-text"></i> {{ match.necessidade.title|truncatewords:5 }}
+                                        </small>
+                                    </div>
+                                {% else %}
+                                    <div>
+                                        <strong>{{ match.empreendedor.business_name }}</strong>
+                                        <br>
+                                        <small class="text-muted">
+                                            <i class="bi bi-person"></i> {{ match.empreendedor.user.get_full_name|default:match.empreendedor.user.username }}
+                                        </small>
+                                    </div>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <span class="badge badge-{{ match.status }}">
+                                    {{ match.get_status_display }}
+                                </span>
+                            </td>
+                            <td>
+                                {% if match.price_quote %}
+                                    <strong>{{ match.price_quote }} MT</strong>
+                                {% elif match.necessidade.budget %}
+                                    <span class="text-muted">{{ match.necessidade.budget }} MT</span>
+                                {% else %}
+                                    <span class="text-muted">Sob consulta</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <small>{{ match.date_created|date:"d/m/Y H:i" }}</small>
+                            </td>
+                            <td>
+                                <a href="{% url 'marketplace:match-detail' match.pk %}" class="btn btn-sm btn-primary">
+                                    <i class="bi bi-eye"></i> Ver
+                                </a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Paginação -->
+        {% include 'marketplace/includes/pagination.html' with page_obj=matches %}
+        
+    {% else %}
+        <div class="empty-state">
+            <i class="bi bi-inbox"></i>
+            <h5>Nenhum match ainda</h5>
+            <p>
+                {% if user.is_empreendedor %}
+                    Comece verificando as necessidades dos clientes
+                {% else %}
+                    Publique uma necessidade para receber propostas
+                {% endif %}
+            </p>
+            <a href="{% url 'marketplace:dashboard' %}" class="btn btn-primary">
+                <i class="bi bi-speedometer2"></i> Acessar Dashboard
+            </a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

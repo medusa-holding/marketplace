@@ -1,0 +1,177 @@
+{% extends 'base.html' %}
+{% load marketplace_filters %}
+
+{% block title %}{{ necessidade.title }} - Medusa Marketplace{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <div>
+                            <h2 class="text-primary mb-2">{{ necessidade.title }}</h2>
+                            <div class="d-flex gap-2 flex-wrap">
+                                <span class="badge badge-{{ necessidade.status }}">
+                                    {{ necessidade.get_status_display }}
+                                </span>
+                                <span class="urgency-{{ necessidade.urgency }}">
+                                    <i class="bi bi-exclamation-triangle-fill"></i> {{ necessidade.get_urgency_display }}
+                                </span>
+                                {% if necessidade.category %}
+                                    <span class="badge bg-light text-dark">
+                                        <i class="bi bi-tag"></i> {{ necessidade.category.name }}
+                                    </span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="text-end">
+                            <small class="text-muted">
+                                Publicado {{ necessidade.date_created|timesince }} atrás
+                            </small>
+                        </div>
+                    </div>
+                    
+                    <hr>
+                    
+                    <h5 class="text-primary mb-3">
+                        <i class="bi bi-file-text"></i> Descrição
+                    </h5>
+                    <p class="text-muted mb-4" style="white-space: pre-line;">{{ necessidade.description }}</p>
+                    
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <h6 class="text-primary">
+                                <i class="bi bi-person"></i> Cliente
+                            </h6>
+                            <p class="mb-1">
+                                <strong>{{ necessidade.cliente.user.get_full_name|default:necessidade.cliente.user.username }}</strong>
+                            </p>
+                            <p class="text-muted small">
+                                Membro desde {{ necessidade.cliente.user.date_created|date:"F Y" }}
+                            </p>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <h6 class="text-primary">
+                                <i class="bi bi-geo-alt"></i> Localização
+                            </h6>
+                            <p class="mb-1">{{ necessidade.location }}</p>
+                            
+                            {% if necessidade.budget %}
+                                <h6 class="text-primary mt-3">
+                                    <i class="bi bi-coin"></i> Orçamento
+                                </h6>
+                                <p class="mb-0">
+                                    <strong>{{ necessidade.budget }} MT</strong>
+                                </p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    {% if user.is_authenticated and user.is_empreendedor %}
+                        {% if not existing_match %}
+                            <div class="alert alert-light border">
+                                <h6><i class="bi bi-hand-thumbs-up"></i> Que tal atender esta necessidade?</h6>
+                                <p class="mb-3">Se candidate e {{ necessidade.cliente.user.get_full_name|default:necessidade.cliente.user.username }} será notificado!</p>
+                                <form method="post" action="{% url 'marketplace:create-match' necessidade.pk %}">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-success">
+                                        <i class="bi bi-check-circle"></i> Me Candidatar
+                                    </button>
+                                </form>
+                            </div>
+                        {% else %}
+                            <div class="alert alert-success">
+                                <h6><i class="bi bi-check-circle-fill"></i> Você já se candidatou!</h6>
+                                <p class="mb-3">
+                                    <a href="{% url 'marketplace:match-detail' existing_match.pk %}" class="btn btn-primary">
+                                        <i class="bi bi-eye"></i> Ver Match
+                                    </a>
+                                </p>
+                            </div>
+                        {% endif %}
+                    {% elif not user.is_authenticated %}
+                        <div class="alert alert-light border">
+                            <h6><i class="bi bi-person-plus"></i> Crie sua conta para se candidatar</h6>
+                            <p class="mb-3">Empreendedores cadastrados podem se candidatar a esta necessidade!</p>
+                            <a href="{% url 'marketplace:register' %}" class="btn btn-primary">
+                                <i class="bi bi-box-arrow-in-right"></i> Criar Conta Grátis
+                            </a>
+                        </div>
+                    {% endif %}
+                    
+                    {% if user == necessidade.cliente.user %}
+                        <div class="d-flex gap-2 mt-4">
+                            {% if necessidade.status == 'aberto' %}
+                                <a href="{% url 'marketplace:necessidade-update' necessidade.pk %}" class="btn btn-outline-primary">
+                                    <i class="bi bi-pencil"></i> Editar
+                                </a>
+                                <form method="post" action="{% url 'marketplace:necessidade-cancel' necessidade.pk %}" class="d-inline">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-outline-danger" onclick="return confirm('Tem certeza que deseja cancelar esta necessidade?')">
+                                        <i class="bi bi-x-circle"></i> Cancelar
+                                    </button>
+                                </form>
+                            {% endif %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-4">
+            <!-- Informações da Necessidade -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="bi bi-info-circle"></i> Informações
+                    </h5>
+                </div>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item">
+                        <i class="bi bi-calendar text-primary"></i>
+                        Publicado em {{ necessidade.date_created|date:"d/m/Y" }}
+                    </li>
+                    <li class="list-group-item">
+                        <i class="bi bi-arrow-repeat text-primary"></i>
+                        Atualizado em {{ necessidade.date_updated|date:"d/m/Y" }}
+                    </li>
+                    <li class="list-group-item">
+                        <i class="bi bi-person-check text-primary"></i>
+                        {% with interest_count=necessidade.matches.count %}
+                            {{ interest_count }} empreendedor{{ interest_count|pluralize:"es" }} interessado{{ interest_count|pluralize:"s" }}
+                        {% endwith %}
+                    </li>
+                </ul>
+            </div>
+            
+            <!-- Categorias Relacionadas -->
+            {% if related_necessidades %}
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-light">
+                        <h6 class="mb-0">
+                            <i class="bi bi-list-ul"></i> Outras Necessidades
+                        </h6>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="list-group list-group-flush">
+                            {% for related in related_necessidades|slice:":5" %}
+                                <a href="{% url 'marketplace:necessidade-detail' related.pk %}" 
+                                   class="list-group-item list-group-item-action">
+                                    <div class="d-flex justify-content-between">
+                                        <span class="fw-bold">{{ related.title|truncatewords:5 }}</span>
+                                        <small class="text-muted">{{ related.date_created|timesince }}</small>
+                                    </div>
+                                    <small class="text-muted">{{ related.location|truncatewords:3 }}</small>
+                                </a>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

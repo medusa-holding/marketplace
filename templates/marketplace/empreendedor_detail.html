@@ -1,0 +1,157 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ empreendedor.business_name }} - Medusa Marketplace{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <div>
+                            <h2 class="text-primary mb-2">{{ empreendedor.business_name }}</h2>
+                            {% if empreendedor.category %}
+                                <span class="category-badge">{{ empreendedor.category.name }}</span>
+                            {% endif %}
+                            {% if empreendedor.is_verified %}
+                                <span class="badge bg-success">
+                                    <i class="bi bi-check-circle-fill"></i> Verificado
+                                </span>
+                            {% endif %}
+                        </div>
+                        <div class="text-end">
+                            <small class="text-muted">Membro desde {{ empreendedor.date_created|date:"F Y" }}</small>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <p class="mb-2">
+                                <i class="bi bi-person-circle text-primary"></i>
+                                <strong>Responsável:</strong> {{ empreendedor.user.get_full_name|default:empreendedor.user.username }}
+                            </p>
+                            <p class="mb-2">
+                                <i class="bi bi-geo-alt text-primary"></i>
+                                <strong>Localização:</strong> {{ empreendedor.location }}
+                            </p>
+                        </div>
+                        <div class="col-md-6">
+                            {% if empreendedor.price_range %}
+                                <p class="mb-2">
+                                    <i class="bi bi-coin text-primary"></i>
+                                    <strong>Preços:</strong> {{ empreendedor.price_range }}
+                                </p>
+                            {% endif %}
+                            <p class="mb-2">
+                                <i class="bi bi-whatsapp text-success"></i>
+                                <strong>WhatsApp:</strong> 
+                                <a href="https://wa.me/258{{ empreendedor.whatsapp|cut:' ' }}" target="_blank" class="text-decoration-none">
+                                    {{ empreendedor.whatsapp }}
+                                </a>
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <hr>
+                    
+                    <h5 class="text-primary mb-3">
+                        <i class="bi bi-info-circle"></i> Sobre o Negócio
+                    </h5>
+                    <p class="text-muted mb-4">{{ empreendedor.description|linebreaks }}</p>
+                    
+                    <h5 class="text-primary mb-3">
+                        <i class="bi bi-list-check"></i> Serviços Oferecidos
+                    </h5>
+                    <div class="row mb-4">
+                        {% for service in empreendedor.services_list %}
+                            <div class="col-md-6 mb-2">
+                                <i class="bi bi-check-circle-fill text-success me-2"></i>
+                                {{ service }}
+                            </div>
+                        {% empty %}
+                            <div class="col-12">
+                                <p class="text-muted">Nenhum serviço cadastrado.</p>
+                            </div>
+                        {% endfor %}
+                    </div>
+                    
+                    {% if user.is_authenticated and user.is_cliente %}
+                        <div class="alert alert-light border">
+                            <h6><i class="bi bi-lightbulb"></i> Precisa deste serviço?</h6>
+                            <p class="mb-3">Publique uma necessidade e {{ empreendedor.business_name }} será notificado automaticamente!</p>
+                            <a href="{% url 'marketplace:necessidade-create' %}" class="btn btn-primary">
+                                <i class="bi bi-plus-circle"></i> Publicar Necessidade
+                            </a>
+                        </div>
+                    {% elif not user.is_authenticated %}
+                        <div class="alert alert-light border">
+                            <h6><i class="bi bi-person-plus"></i> Crie sua conta</h6>
+                            <p class="mb-3">Cadastre-se para publicar uma necessidade e conectar com {{ empreendedor.business_name }}!</p>
+                            <a href="{% url 'marketplace:register' %}" class="btn btn-primary">
+                                <i class="bi bi-box-arrow-in-right"></i> Criar Conta Grátis
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-4">
+            <!-- Card de Contato -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="bi bi-telephone"></i> Entre em Contato
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="https://wa.me/258{{ empreendedor.whatsapp|cut:' ' }}" 
+                           target="_blank" class="btn btn-success btn-lg">
+                            <i class="bi bi-whatsapp"></i> WhatsApp
+                        </a>
+                        
+                        {% if empreendedor.user.phone %}
+                            <a href="tel:{{ empreendedor.user.phone }}" class="btn btn-outline-primary">
+                                <i class="bi bi-telephone"></i> {{ empreendedor.user.phone }}
+                            </a>
+                        {% endif %}
+                        
+                        {% if empreendedor.user.email %}
+                            <a href="mailto:{{ empreendedor.user.email }}" class="btn btn-outline-secondary">
+                                <i class="bi bi-envelope"></i> E-mail
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Card de Informações -->
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-light">
+                    <h6 class="mb-0">
+                        <i class="bi bi-info-square"></i> Informações
+                    </h6>
+                </div>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item">
+                        <i class="bi bi-calendar-check text-primary"></i>
+                        Cadastrado em {{ empreendedor.date_created|date:"d/m/Y" }}
+                    </li>
+                    <li class="list-group-item">
+                        <i class="bi bi-arrow-repeat text-primary"></i>
+                        Atualizado em {{ empreendedor.date_updated|date:"d/m/Y" }}
+                    </li>
+                    {% if empreendedor.is_active %}
+                        <li class="list-group-item">
+                            <i class="bi bi-check-circle-fill text-success"></i>
+                            Ativo na plataforma
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

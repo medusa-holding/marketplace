@@ -1,0 +1,103 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Responder Necessidade - Medusa Marketplace{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">
+                        <i class="bi bi-reply"></i> Responder Necessidade
+                    </h4>
+                </div>
+                <div class="card-body p-4">
+                    <!-- Informações da Necessidade -->
+                    <div class="alert alert-light border mb-4">
+                        <h5 class="text-primary mb-2">
+                            <i class="bi bi-file-text"></i> {{ match.necessidade.title }}
+                        </h5>
+                        <p class="text-muted mb-2">{{ match.necessidade.description|truncatewords:20 }}</p>
+                        <div class="d-flex gap-3 text-muted small">
+                            <span><i class="bi bi-person"></i> {{ match.necessidade.cliente.user.get_full_name|default:match.necessidade.cliente.user.username }}</span>
+                            <span><i class="bi bi-geo-alt"></i> {{ match.necessidade.location }}</span>
+                            <span><i class="bi bi-tag"></i> {{ match.necessidade.category.name|default:"-" }}</span>
+                        </div>
+                    </div>
+                    
+                    <form method="post" novalidate>
+                        {% csrf_token %}
+                        
+                        <!-- Mensagem -->
+                        <div class="mb-4">
+                            {{ form.message|as_crispy_field }}
+                            <small class="form-text text-muted">
+                                <i class="bi bi-lightbulb"></i> Dica: Explique como você pode ajudar, prazos, materiais necessários e qualquer outro detalhe importante.
+                            </small>
+                        </div>
+                        
+                        <!-- Orçamento -->
+                        <div class="mb-4">
+                            {{ form.price_quote|as_crispy_field }}
+                            <small class="form-text text-muted">
+                                <i class="bi bi-info-circle"></i> Opcional. Se o cliente informou orçamento, tente estar dentro da faixa dele.
+                            </small>
+                        </div>
+                        
+                        <!-- Preview da Resposta -->
+                        <div class="alert alert-info mb-4">
+                            <h6><i class="bi bi-eye"></i> Preview da sua resposta:</h6>
+                            <hr>
+                            <p class="mb-2" id="preview-message" style="white-space: pre-line;">Sua mensagem aparecerá aqui...</p>
+                            <div id="preview-price" class="d-none">
+                                <hr>
+                                <p class="mb-0"><strong>Orçamento: <span id="price-value"></span> MT</strong></p>
+                            </div>
+                        </div>
+                        
+                        <div class="d-flex gap-3">
+                            <button type="submit" class="btn btn-success btn-lg flex-grow-1">
+                                <i class="bi bi-send"></i> Enviar Resposta
+                            </button>
+                            <a href="{% url 'marketplace:match-detail' match.pk %}" class="btn btn-outline-secondary btn-lg">
+                                <i class="bi bi-x-circle"></i> Cancelar
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Preview em tempo real
+    var messageInput = document.getElementById('{{ form.message.id_for_label }}');
+    var priceInput = document.getElementById('{{ form.price_quote.id_for_label }}');
+    var previewMessage = document.getElementById('preview-message');
+    var previewPrice = document.getElementById('preview-price');
+    var priceValue = document.getElementById('price-value');
+    
+    function updatePreview() {
+        previewMessage.textContent = messageInput.value || 'Sua mensagem aparecerá aqui...';
+        
+        if (priceInput.value) {
+            previewPrice.classList.remove('d-none');
+            priceValue.textContent = priceInput.value;
+        } else {
+            previewPrice.classList.add('d-none');
+        }
+    }
+    
+    [messageInput, priceInput].forEach(function(element) {
+        element.addEventListener('input', updatePreview);
+    });
+    
+    // Inicializa o preview
+    updatePreview();
+});
+</script>
+{% endblock %}

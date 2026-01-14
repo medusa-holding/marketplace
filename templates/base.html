@@ -1,0 +1,148 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Medusa Marketplace - Conectando empreendedores e clientes{% endblock %}</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="{% url 'marketplace:home' %}">
+                <i class="bi bi-shop"></i> Medusa
+            </a>
+            
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'marketplace:home' %}">Início</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'marketplace:como-funciona' %}">Como Funciona</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'marketplace:empreendedor-list' %}">Empreendedores</a>
+                    </li>
+                    {% if user.is_authenticated %}
+                        {% if user.is_empreendedor %}
+                            <li class="nav-item">
+                                <a class="nav-link" href="{% url 'marketplace:necessidade-list' %}">Necessidades</a>
+                            </li>
+                        {% endif %}
+                    {% endif %}
+                </ul>
+                
+                <ul class="navbar-nav">
+                    {% if user.is_authenticated %}
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                                <i class="bi bi-person-circle"></i> {{ user.get_full_name|default:user.username }}
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="{% url 'marketplace:dashboard' %}">Dashboard</a></li>
+                                <li><a class="dropdown-item" href="{% url 'marketplace:profile-update' %}">Meu Perfil</a></li>
+                                <li><a class="dropdown-item" href="{% url 'marketplace:match-list' %}">Meus Matches</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="{% url 'marketplace:logout' %}">Sair</a></li>
+                            </ul>
+                        </li>
+                    {% else %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'marketplace:login' %}">Entrar</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="btn btn-outline-light ms-2" href="{% url 'marketplace:register' %}">Cadastrar</a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+    
+    <!-- Messages -->
+    {% if messages %}
+        <div class="container mt-3">
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+    
+    <!-- Main Content -->
+    <main class="flex-grow-1">
+        {% block content %}{% endblock %}
+    </main>
+    
+    <!-- Footer -->
+    <footer class="bg-dark text-light py-5 mt-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4">
+                    <h5><i class="bi bi-shop"></i> Medusa Marketplace</h5>
+                    <p class="text-muted">
+                        Conectando empreendedores locais a clientes que precisam de soluções.
+                        A plataforma que vende por você.
+                    </p>
+                </div>
+                <div class="col-md-2">
+                    <h6>Links</h6>
+                    <ul class="list-unstyled">
+                        <li><a href="{% url 'marketplace:home' %}" class="text-light text-decoration-none">Início</a></li>
+                        <li><a href="{% url 'marketplace:como-funciona' %}" class="text-light text-decoration-none">Como Funciona</a></li>
+                        <li><a href="{% url 'marketplace:empreendedor-list' %}" class="text-light text-decoration-none">Empreendedores</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-2">
+                    <h6>Ajuda</h6>
+                    <ul class="list-unstyled">
+                        <li><a href="{% url 'marketplace:contato' %}" class="text-light text-decoration-none">Contato</a></li>
+                        <li><a href="#" class="text-light text-decoration-none">FAQ</a></li>
+                        <li><a href="#" class="text-light text-decoration-none">Termos de Uso</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-4">
+                    <h6>Desenvolvido por</h6>
+                    <p class="text-muted">
+                        <strong>Medusa Holding</strong><br>
+                        Capacitação Empreendedora | Consultoria | Tecnologia
+                    </p>
+                </div>
+            </div>
+            <hr class="my-4">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <p class="mb-0 text-muted">&copy; 2024 Medusa Holding. Todos os direitos reservados.</p>
+                </div>
+                <div class="col-md-6 text-end">
+                    <span class="text-muted">Conectando Moçambique ao futuro digital</span>
+                </div>
+            </div>
+        </div>
+    </footer>
+    
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Custom JS -->
+    <script src="{% static 'js/main.js' %}"></script>
+    
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

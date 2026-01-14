@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+{% load marketplace_filters %}
+
+{% block title %}Necessidades - Medusa Marketplace{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row">
+        <div class="col-lg-3 mb-4">
+            <!-- Filtros -->
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="bi bi-funnel"></i> Filtros
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form method="get" id="filter-form">
+                        <div class="mb-3">
+                            <label class="form-label">Categoria</label>
+                            <select name="category" class="form-select filter-select">
+                                <option value="">Todas as categorias</option>
+                                {% for category in categories %}
+                                    <option value="{{ category.id }}" {% if request.GET.category == category.id|stringformat:"s" %}selected{% endif %}>
+                                        {{ category.name }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Localização</label>
+                            <input type="text" name="location" class="form-control" 
+                                   placeholder="Bairro ou cidade..."
+                                   value="{{ request.GET.location }}">
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="bi bi-search"></i> Filtrar
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-9">
+            <!-- Resultados -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2>
+                    <i class="bi bi-list-check"></i>
+                    Necessidades Abertas
+                    <span class="badge bg-secondary">{{ necessidades.paginator.count }}</span>
+                </h2>
+                
+                {% if user.is_authenticated and user.is_cliente %}
+                    <a href="{% url 'marketplace:necessidade-create' %}" class="btn btn-primary">
+                        <i class="bi bi-plus-circle"></i> Nova Necessidade
+                    </a>
+                {% endif %}
+            </div>
+            
+            {% if necessidades %}
+                <div class="mb-4">
+                    {% for necessidade in necessidades %}
+                        {% include 'marketplace/includes/necessidade_item.html' with necessidade=necessidade %}
+                    {% endfor %}
+                </div>
+                
+                <!-- Paginação -->
+                {% include 'marketplace/includes/pagination.html' with page_obj=necessidades %}
+                
+            {% else %}
+                <div class="empty-state">
+                    <i class="bi bi-inbox"></i>
+                    <h5>Nenhuma necessidade encontrada</h5>
+                    <p>Tente ajustar seus filtros ou volte mais tarde.</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Atualizar Perfil - Medusa Marketplace{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">
+                        <i class="bi bi-person-badge"></i>
+                        {% if user.is_empreendedor %}Perfil do Empreendedor{% else %}Perfil do Cliente{% endif %}
+                    </h4>
+                </div>
+                <div class="card-body p-4">
+                    <form method="post" novalidate enctype="multipart/form-data">
+                        {% csrf_token %}
+                        
+                        {% if user.is_empreendedor %}
+                            <!-- Informações do Negócio -->
+                            <h5 class="text-primary mb-3">
+                                <i class="bi bi-shop"></i> Informações do Negócio
+                            </h5>
+                            
+                            {{ form.business_name|as_crispy_field }}
+                            {{ form.category|as_crispy_field }}
+                            {{ form.description|as_crispy_field }}
+                            
+                            <!-- Serviços -->
+                            <div class="mb-4">
+                                {{ form.services|as_crispy_field }}
+                                <div class="alert alert-light">
+                                    <small class="text-muted">
+                                        <i class="bi bi-lightbulb"></i> Dica: Liste cada serviço em uma linha diferente. Isso ajuda os clientes a encontrarem você mais facilmente.
+                                    </small>
+                                </div>
+                            </div>
+                            
+                            <!-- Contato e Localização -->
+                            <h5 class="text-primary mb-3">
+                                <i class="bi bi-geo-alt"></i> Contato e Localização
+                            </h5>
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    {{ form.location|as_crispy_field }}
+                                </div>
+                                <div class="col-md-6">
+                                    {{ form.whatsapp|as_crispy_field }}
+                                </div>
+                            </div>
+                            
+                            {{ form.price_range|as_crispy_field }}
+                            
+                        {% else %}
+                            <!-- Perfil do Cliente -->
+                            <h5 class="text-primary mb-3">
+                                <i class="bi bi-person"></i> Informações Pessoais
+                            </h5>
+                            
+                            <div class="alert alert-info">
+                                <i class="bi bi-info-circle"></i>
+                                <strong>Dica:</strong> Complete seu perfil para receber matches mais relevantes da sua região.
+                            </div>
+                            
+                            {{ form.location|as_crispy_field }}
+                            
+                        {% endif %}
+                        
+                        <div class="d-flex gap-3 mt-4">
+                            <button type="submit" class="btn btn-primary btn-lg flex-grow-1">
+                                <i class="bi bi-check-circle"></i> Atualizar Perfil
+                            </button>
+                            <a href="{% url 'marketplace:dashboard' %}" class="btn btn-outline-secondary btn-lg">
+                                <i class="bi bi-x-circle"></i> Cancelar
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,115 @@
+{% extends 'base.html' %}
+{% load marketplace_filters %}
+
+{% block title %}Buscar - Medusa Marketplace{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row">
+        <div class="col-12">
+            <h2 class="mb-4">
+                <i class="bi bi-search"></i>
+                Resultados da Busca
+                {% if query %}
+                    por "<strong>{{ query }}</strong>"
+                {% endif %}
+            </h2>
+            
+            <!-- Form de Busca -->
+            <form method="get" class="mb-4">
+                <div class="input-group input-group-lg">
+                    <input type="text" name="q" class="form-control" 
+                           placeholder="Buscar empreendedores, serviços, localizações..."
+                           value="{{ query }}" required>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-search"></i> Buscar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    {% if query %}
+        {% if results %}
+            <div class="row mb-3">
+                <div class="col-12">
+                    <p class="text-muted">
+                        Encontrado{{ results|length|pluralize:"s" }} {{ results|length }} resultado{{ results|length|pluralize:"s" }}
+                    </p>
+                </div>
+            </div>
+            
+            <div class="row">
+                {% for empreendedor in results %}
+                    <div class="col-md-6 col-lg-4 mb-4">
+                        <div class="card h-100 shadow-sm empreendedor-card">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <h5 class="business-name mb-0">
+                                        {{ empreendedor.business_name }}
+                                    </h5>
+                                    {% if empreendedor.is_verified %}
+                                        <span class="badge bg-success" title="Verificado">
+                                            <i class="bi bi-check-circle-fill"></i>
+                                        </span>
+                                    {% endif %}
+                                </div>
+                                
+                                {% if empreendedor.category %}
+                                    <span class="category-badge">
+                                        {{ empreendedor.category.name }}
+                                    </span>
+                                {% endif %}
+                                
+                                <p class="text-muted small mt-2 mb-2">
+                                    <i class="bi bi-geo-alt"></i> {{ empreendedor.location|truncatewords:3 }}
+                                </p>
+                                
+                                <p class="card-text text-muted" style="font-size: 0.9rem;">
+                                    {{ empreendedor.description|truncatewords:15 }}
+                                </p>
+                                
+                                {% if empreendedor.price_range %}
+                                    <p class="text-muted small mb-2">
+                                        <i class="bi bi-coin"></i> {{ empreendedor.price_range }}
+                                    </p>
+                                {% endif %}
+                                
+                                <div class="d-flex gap-2">
+                                    <a href="{% url 'marketplace:empreendedor-detail' empreendedor.pk %}" 
+                                       class="btn btn-primary btn-sm flex-grow-1">
+                                        <i class="bi bi-eye"></i> Ver Perfil
+                                    </a>
+                                    <a href="https://wa.me/258{{ empreendedor.whatsapp|cut:' ' }}" 
+                                       target="_blank" class="btn btn-success btn-sm">
+                                        <i class="bi bi-whatsapp"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+            
+        {% else %}
+            <div class="empty-state">
+                <i class="bi bi-search"></i>
+                <h5>Nenhum resultado encontrado</h5>
+                <p>Tente buscar com termos diferentes ou mais genéricos.</p>
+                <a href="{% url 'marketplace:empreendedor-list' %}" class="btn btn-primary">
+                    <i class="bi bi-list"></i> Ver Todos os Empreendedores
+                </a>
+            </div>
+        {% endif %}
+    {% else %}
+        <div class="empty-state">
+            <i class="bi bi-search"></i>
+            <h5>Digite algo para buscar</h5>
+            <p>Encontre empreendedores pelo nome do negócio, serviços ou localização.</p>
+            <a href="{% url 'marketplace:empreendedor-list' %}" class="btn btn-primary">
+                <i class="bi bi-list"></i> Ver Todos os Empreendedores
+            </a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

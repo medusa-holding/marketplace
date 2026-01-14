@@ -1,0 +1,167 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Criar Conta - Medusa Marketplace{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow-sm">
+                <div class="card-header text-center bg-primary text-white">
+                    <h3 class="mb-0">
+                        <i class="bi bi-person-plus"></i> Criar Conta
+                    </h3>
+                </div>
+                <div class="card-body p-4">
+                    <form method="post" novalidate>
+                        {% csrf_token %}
+                        
+                        <!-- Informações Básicas -->
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                {{ form.first_name|as_crispy_field }}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                {{ form.last_name|as_crispy_field }}
+                            </div>
+                        </div>
+                        
+                        {{ form.username|as_crispy_field }}
+                        {{ form.email|as_crispy_field }}
+                        {{ form.phone|as_crispy_field }}
+                        
+                        <!-- Tipo de Usuário -->
+                        <div class="mb-4">
+                            <label class="form-label">Você é:</label>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-check p-3 border rounded user-type-option" data-type="cliente">
+                                        <input class="form-check-input" type="radio" name="user_type" id="id_user_type_0" value="cliente" checked>
+                                        <label class="form-check-label" for="id_user_type_0">
+                                            <i class="bi bi-person-fill"></i> <strong>Cliente</strong>
+                                            <br>
+                                            <small class="text-muted">Preciso de serviços/produtos</small>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-check p-3 border rounded user-type-option" data-type="empreendedor">
+                                        <input class="form-check-input" type="radio" name="user_type" id="id_user_type_1" value="empreendedor">
+                                        <label class="form-check-label" for="id_user_type_1">
+                                            <i class="bi bi-shop"></i> <strong>Empreendedor</strong>
+                                            <br>
+                                            <small class="text-muted">Ofereço serviços/produtos</small>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Senha -->
+                        <div class="row">
+                            <div class="col-md-6 mb-3 position-relative">
+                                {{ form.password1|as_crispy_field }}
+                                <button type="button" class="btn btn-sm btn-outline-secondary position-absolute password-toggle" 
+                                        data-target="#{{ form.password1.id_for_label }}" 
+                                        style="top: 2.5rem; right: 0.5rem;">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                            </div>
+                            <div class="col-md-6 mb-3 position-relative">
+                                {{ form.password2|as_crispy_field }}
+                                <button type="button" class="btn btn-sm btn-outline-secondary position-absolute password-toggle" 
+                                        data-target="#{{ form.password2.id_for_label }}" 
+                                        style="top: 2.5rem; right: 0.5rem;">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- Termos -->
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="terms" required>
+                                <label class="form-check-label" for="terms">
+                                    Concordo com os <a href="#" class="text-primary">termos de uso</a> e 
+                                    <a href="#" class="text-primary">política de privacidade</a>
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary w-100 btn-lg">
+                            <i class="bi bi-person-plus"></i> Criar Conta
+                        </button>
+                    </form>
+                    
+                    <hr class="my-4">
+                    
+                    <div class="text-center">
+                        <p class="mb-0">Já tem uma conta?</p>
+                        <a href="{% url 'marketplace:login' %}" class="btn btn-outline-primary mt-2">
+                            <i class="bi bi-box-arrow-in-right"></i> Entrar
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.user-type-option {
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.user-type-option:hover {
+    border-color: var(--primary-color) !important;
+    background-color: #f8f9fa;
+}
+
+.user-type-option.selected {
+    border-color: var(--primary-color) !important;
+    background-color: rgba(106, 13, 173, 0.1);
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Seleção visual do tipo de usuário
+    var userTypeOptions = document.querySelectorAll('.user-type-option');
+    var userTypeInputs = document.querySelectorAll('input[name="user_type"]');
+    
+    function updateSelection() {
+        userTypeOptions.forEach(function(option) {
+            option.classList.remove('selected');
+        });
+        
+        var selectedInput = document.querySelector('input[name="user_type"]:checked');
+        if (selectedInput) {
+            var selectedOption = document.querySelector('.user-type-option[data-type="' + selectedInput.value + '"]');
+            if (selectedOption) {
+                selectedOption.classList.add('selected');
+            }
+        }
+    }
+    
+    userTypeOptions.forEach(function(option) {
+        option.addEventListener('click', function() {
+            var type = this.getAttribute('data-type');
+            var input = document.getElementById('id_user_type_' + (type === 'cliente' ? '0' : '1'));
+            if (input) {
+                input.checked = true;
+                updateSelection();
+            }
+        });
+    });
+    
+    userTypeInputs.forEach(function(input) {
+        input.addEventListener('change', updateSelection);
+    });
+    
+    // Inicializa a seleção
+    updateSelection();
+});
+</script>
+{% endblock %}
